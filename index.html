@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List Life Dashboard</title>
+
+    <!-- FOUC prevention: reads saved theme and applies it before first paint -->
+    <script>
+      /* placeholder — ThemeController inline FOUC script goes here (Task 4.1) */
+    </script>
+
+    <link rel="stylesheet" href="css/styles.css" />
+    <script defer src="js/app.js"></script>
+  </head>
+
+  <body>
+    <!-- ====================================================
+         Header — Theme Toggle & Name Configurator
+    ===================================================== -->
+    <header class="site-header">
+      <div class="header-inner">
+        <span class="app-title">Life Dashboard</span>
+
+        <!-- Name Configurator -->
+        <section class="name-configurator" aria-label="Name Configurator">
+          <label for="name-input" class="sr-only">Your name</label>
+          <input
+            type="text"
+            id="name-input"
+            class="name-input"
+            placeholder="Enter your name"
+            maxlength="50"
+            autocomplete="off"
+          />
+          <button type="button" id="name-save-btn" class="btn btn--secondary">Save</button>
+          <button type="button" id="name-clear-btn" class="btn btn--ghost">Clear</button>
+          <span id="name-error" class="error-msg" role="alert" aria-live="polite"></span>
+        </section>
+
+        <!-- Theme Toggle -->
+        <button
+          type="button"
+          id="theme-toggle-btn"
+          class="btn btn--icon theme-toggle"
+          aria-label="Toggle light/dark theme"
+          aria-pressed="false"
+        >
+          <span class="theme-toggle__icon" aria-hidden="true">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ====================================================
+         Main Dashboard
+    ===================================================== -->
+    <main class="dashboard">
+
+      <!-- Storage unavailability banner (shown by JS when needed) -->
+      <div id="storage-banner" class="banner banner--error" role="alert" aria-live="assertive" hidden>
+        ⚠️ Local Storage is unavailable. Your data will not be saved between sessions.
+      </div>
+
+      <!-- ------------------------------------------------
+           Section 1: Greeting Module
+      ------------------------------------------------- -->
+      <section class="module module--greeting" aria-label="Greeting">
+        <div class="greeting__time" id="greeting-time" aria-live="polite" aria-atomic="true">
+          00:00:00
+        </div>
+        <div class="greeting__date" id="greeting-date"></div>
+        <div class="greeting__text" id="greeting-text"></div>
+      </section>
+
+      <!-- ------------------------------------------------
+           Section 2: Focus Timer
+      ------------------------------------------------- -->
+      <section class="module module--focus-timer" aria-label="Focus Timer">
+        <h2 class="module__title">Focus Timer</h2>
+
+        <div class="timer__display" id="timer-display" aria-live="off" aria-atomic="true">
+          25:00
+        </div>
+
+        <div class="timer__controls">
+          <button type="button" id="timer-start-btn" class="btn btn--primary">Start</button>
+          <button type="button" id="timer-stop-btn"  class="btn btn--secondary" disabled>Stop</button>
+          <button type="button" id="timer-reset-btn" class="btn btn--ghost">Reset</button>
+        </div>
+
+        <!-- Completion notification (shown by JS) -->
+        <div id="timer-notification" class="timer__notification" role="status" aria-live="polite" hidden>
+          ✅ Focus session complete!
+        </div>
+
+        <!-- Duration configuration -->
+        <div class="timer__duration-config">
+          <label for="duration-input" class="form-label">Duration (minutes)</label>
+          <input
+            type="number"
+            id="duration-input"
+            class="input input--short"
+            min="1"
+            max="120"
+            value="25"
+            aria-describedby="duration-error"
+          />
+          <button type="button" id="duration-save-btn" class="btn btn--secondary">Save</button>
+          <span id="duration-error" class="error-msg" role="alert" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------
+           Section 3: Task Manager
+      ------------------------------------------------- -->
+      <section class="module module--task-manager" aria-label="Task Manager">
+        <h2 class="module__title">Tasks</h2>
+
+        <!-- Add task form -->
+        <form id="task-form" class="task-form" novalidate>
+          <label for="task-input" class="sr-only">New task title</label>
+          <input
+            type="text"
+            id="task-input"
+            class="input input--full"
+            placeholder="Add a new task…"
+            maxlength="200"
+            autocomplete="off"
+            aria-describedby="task-error"
+          />
+          <button type="submit" class="btn btn--primary">Add</button>
+          <span id="task-error" class="error-msg" role="alert" aria-live="polite"></span>
+        </form>
+
+        <!-- Task list -->
+        <ul id="task-list" class="task-list" aria-label="Task list">
+          <!-- Tasks rendered by JS -->
+        </ul>
+
+        <!-- Storage error notice for task list -->
+        <div id="task-load-error" class="notice notice--error" role="alert" hidden></div>
+      </section>
+
+      <!-- ------------------------------------------------
+           Section 4: Quick Links
+      ------------------------------------------------- -->
+      <section class="module module--quick-links" aria-label="Quick Links">
+        <h2 class="module__title">Quick Links</h2>
+
+        <!-- Add link form -->
+        <form id="link-form" class="link-form" novalidate>
+          <div class="link-form__row">
+            <label for="link-label-input" class="sr-only">Link label</label>
+            <input
+              type="text"
+              id="link-label-input"
+              class="input"
+              placeholder="Label"
+              maxlength="50"
+              autocomplete="off"
+              aria-describedby="link-label-error"
+            />
+            <span id="link-label-error" class="error-msg" role="alert" aria-live="polite"></span>
+          </div>
+          <div class="link-form__row">
+            <label for="link-url-input" class="sr-only">URL</label>
+            <input
+              type="url"
+              id="link-url-input"
+              class="input input--full"
+              placeholder="https://example.com"
+              maxlength="2048"
+              autocomplete="off"
+              aria-describedby="link-url-error"
+            />
+            <span id="link-url-error" class="error-msg" role="alert" aria-live="polite"></span>
+          </div>
+          <button type="submit" class="btn btn--primary">Add Link</button>
+        </form>
+
+        <!-- Links container -->
+        <div id="links-container" class="links-container" aria-label="Saved links">
+          <!-- Link buttons rendered by JS -->
+        </div>
+
+        <!-- Storage error notice for quick links -->
+        <div id="links-load-error" class="notice notice--error" role="alert" hidden></div>
+      </section>
+
+    </main>
+
+    <!-- ====================================================
+         Footer
+    ===================================================== -->
+    <footer class="site-footer">
+      <p class="site-footer__text">Life Dashboard &mdash; all data stored locally in your browser.</p>
+    </footer>
+
+  </body>
+</html>
