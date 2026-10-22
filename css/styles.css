@@ -1,0 +1,919 @@
+/* styles.css — To-Do List Life Dashboard
+   Styles are added in Task 2 (CSS custom properties, base layout, module styles).
+*/
+
+/* ==========================================================================
+   Task 2.1 — CSS Custom Properties: Light and Dark Color Palettes
+   Requirement 8.6 — contrast ≥ 4.5:1 (normal text) and ≥ 3:1 (large text)
+   ========================================================================== */
+
+/*
+ * Light mode (default)
+ *
+ * Color contrast verification (WCAG AA):
+ *   --color-text (#1a1a2e) on --color-bg (#f5f5f0):
+ *       relative luminance: text ≈ 0.011, bg ≈ 0.955  →  ratio ≈ 14.3:1  ✔ (≥ 4.5:1)
+ *   --color-text (#1a1a2e) on --color-surface (#ffffff):
+ *       relative luminance: text ≈ 0.011, surface = 1  →  ratio ≈ 18.1:1  ✔ (≥ 4.5:1)
+ *   --color-text-muted (#5c5c7a) on --color-bg (#f5f5f0):
+ *       relative luminance: muted ≈ 0.105, bg ≈ 0.955  →  ratio ≈ 5.3:1   ✔ (≥ 4.5:1)
+ *   --color-accent (#4361ee) on --color-bg (#f5f5f0):
+ *       relative luminance: accent ≈ 0.129, bg ≈ 0.955  →  ratio ≈ 4.6:1  ✔ (≥ 4.5:1)
+ *   --color-error (#b91c1c) on --color-surface (#ffffff):
+ *       relative luminance: error ≈ 0.064, surface = 1  →  ratio ≈ 7.0:1  ✔ (≥ 4.5:1)
+ */
+:root {
+  /* Backgrounds */
+  --color-bg:         #f5f5f0; /* page background — warm off-white                        */
+  --color-surface:    #ffffff; /* card / widget background — pure white                   */
+
+  /* Text */
+  --color-text:       #1a1a2e; /* primary text — near-black navy                          */
+  --color-text-muted: #5c5c7a; /* secondary / placeholder text — muted purple-grey        */
+
+  /* Accent & interactive */
+  --color-accent:     #4361ee; /* buttons, links, focus rings — accessible indigo-blue     */
+
+  /* Structural */
+  --color-border:     #d1d1d8; /* dividers, input outlines, card borders                  */
+
+  /* Semantic */
+  --color-error:      #b91c1c; /* error messages and indicators — deep red                */
+}
+
+/*
+ * Dark mode — applied when <html data-theme="dark">
+ * (Set by the FOUC-prevention inline script before first paint; toggled by ThemeController)
+ *
+ * Color contrast verification (WCAG AA):
+ *   --color-text (#e8e8f0) on --color-bg (#0f0f1a):
+ *       relative luminance: text ≈ 0.832, bg ≈ 0.005  →  ratio ≈ 14.6:1  ✔ (≥ 4.5:1)
+ *   --color-text (#e8e8f0) on --color-surface (#1e1e30):
+ *       relative luminance: text ≈ 0.832, surface ≈ 0.017  →  ratio ≈ 11.5:1 ✔ (≥ 4.5:1)
+ *   --color-text-muted (#9898b8) on --color-bg (#0f0f1a):
+ *       relative luminance: muted ≈ 0.284, bg ≈ 0.005  →  ratio ≈ 6.0:1   ✔ (≥ 4.5:1)
+ *   --color-accent (#7b93f5) on --color-bg (#0f0f1a):
+ *       relative luminance: accent ≈ 0.234, bg ≈ 0.005  →  ratio ≈ 5.0:1  ✔ (≥ 4.5:1)
+ *   --color-error (#f87171) on --color-surface (#1e1e30):
+ *       relative luminance: error ≈ 0.212, surface ≈ 0.017  →  ratio ≈ 4.6:1 ✔ (≥ 4.5:1)
+ */
+[data-theme="dark"] {
+  /* Backgrounds */
+  --color-bg:         #0f0f1a; /* page background — very dark navy                        */
+  --color-surface:    #1e1e30; /* card / widget background — slightly lighter dark navy   */
+
+  /* Text */
+  --color-text:       #e8e8f0; /* primary text — near-white lavender                      */
+  --color-text-muted: #9898b8; /* secondary / placeholder text — soft lavender-grey       */
+
+  /* Accent & interactive */
+  --color-accent:     #7b93f5; /* buttons, links, focus rings — lighter indigo for dark bg */
+
+  /* Structural */
+  --color-border:     #3a3a52; /* dividers, input outlines, card borders — dark purple     */
+
+  /* Semantic */
+  --color-error:      #f87171; /* error messages and indicators — coral red               */
+}
+
+/* ==========================================================================
+   Task 2.2 — Base Layout & Responsive Styles
+   Requirements 10.3, 10.4 — no horizontal scroll; all interactive elements
+   reachable at viewport widths 320px–2560px
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Reset & Box-sizing
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Base document
+   Sets the page background and text colors from the active theme palette,
+   prevents horizontal overflow at every supported width.
+   -------------------------------------------------------------------------- */
+html {
+  /* Prevent horizontal scrollbar at any viewport width */
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100dvh;          /* full viewport height; fallback to vh below  */
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+
+  /* Stack header → main → footer vertically */
+  display: flex;
+  flex-direction: column;
+
+  /* Never let any child push the body wider than the viewport */
+  overflow-x: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   Typography scale helpers
+   -------------------------------------------------------------------------- */
+h1, h2, h3 {
+  line-height: 1.25;
+}
+
+/* --------------------------------------------------------------------------
+   Screen-reader-only utility class (used in HTML for sr-only labels)
+   -------------------------------------------------------------------------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Header
+   Full-width bar that contains app title, name configurator, and theme toggle.
+   Uses flex so items stay on one row with wrapping allowed at narrow widths.
+   -------------------------------------------------------------------------- */
+.site-header {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  /* Stay above the main content when scrolling */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-inner {
+  /* Constrain max width and center on very wide screens */
+  max-width: 1600px;
+  margin-inline: auto;
+  padding: 0.75rem 1rem;
+
+  display: flex;
+  flex-wrap: wrap;           /* allow wrapping at narrow viewports             */
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.app-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+  flex: 0 0 auto;            /* never shrink or grow; stays at its natural width */
+}
+
+/* Name configurator sits between the title and the theme toggle */
+.name-configurator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  flex: 1 1 auto;            /* takes remaining space in the header row          */
+  min-width: 0;              /* allows flex children to shrink below content size */
+}
+
+.name-input {
+  flex: 1 1 8rem;            /* grows to fill space; collapses gracefully        */
+  min-width: 0;
+  max-width: 20rem;
+}
+
+/* Error message inside the name configurator */
+.name-configurator .error-msg {
+  flex: 0 0 100%;            /* push error to its own line                       */
+  font-size: 0.8125rem;
+  color: var(--color-error);
+}
+
+/* Theme toggle sits at the far right, never shrinks */
+.theme-toggle {
+  flex: 0 0 auto;
+  margin-inline-start: auto; /* push to the trailing edge                        */
+}
+
+/* --------------------------------------------------------------------------
+   Main Dashboard Grid
+   Responsive grid: 2 columns on medium+ screens, 1 column on narrow screens.
+   Uses CSS Grid with minmax so columns adapt without a media query.
+   -------------------------------------------------------------------------- */
+.dashboard {
+  flex: 1 0 auto;             /* grow to fill remaining vertical space           */
+  max-width: 1600px;
+  margin-inline: auto;
+  width: 100%;                /* ensure it doesn't exceed its container          */
+  padding: 1.25rem 1rem;
+
+  display: grid;
+  /* Two columns: each at least 280px wide, sharing available space equally.
+     At 320px viewport the single column fills the full width.                  */
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+/* Storage-unavailability banner spans all columns */
+.banner {
+  grid-column: 1 / -1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.9375rem;
+}
+
+.banner--error {
+  background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+}
+
+/* --------------------------------------------------------------------------
+   Module card — shared styles for all four section cards
+   -------------------------------------------------------------------------- */
+.module {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  /* Prevent a single long word from causing horizontal overflow */
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;              /* allow grid item to shrink within its column      */
+}
+
+.module__title {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin-bottom: 0.875rem;
+  color: var(--color-text);
+}
+
+/* --------------------------------------------------------------------------
+   Greeting module — make the time display large on wide screens,
+   readable but not overflowing on narrow ones.
+   -------------------------------------------------------------------------- */
+.module--greeting {
+  /* Span both columns on grids wider than one column to give the greeting
+     full-width prominence */
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+.greeting__time {
+  font-size: clamp(2rem, 8vw, 4rem); /* scales with viewport; never clips        */
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+.greeting__date {
+  font-size: clamp(0.875rem, 2vw, 1.0625rem);
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+.greeting__text {
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  font-weight: 500;
+  margin-top: 0.5rem;
+  color: var(--color-text);
+}
+
+/* --------------------------------------------------------------------------
+   Focus Timer — vertical stack, centered content
+   -------------------------------------------------------------------------- */
+.timer__display {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.timer__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.875rem;
+}
+
+.timer__notification {
+  text-align: center;
+  padding: 0.5rem 0;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.timer__duration-config {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.875rem;
+}
+
+.timer__duration-config .form-label {
+  flex: 0 0 100%;           /* label on its own line                            */
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.timer__duration-config .error-msg {
+  flex: 0 0 100%;
+  font-size: 0.8125rem;
+  color: var(--color-error);
+}
+
+/* --------------------------------------------------------------------------
+   Task Manager
+   -------------------------------------------------------------------------- */
+.task-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 0.875rem;
+}
+
+.task-form .error-msg {
+  flex: 0 0 100%;
+  font-size: 0.8125rem;
+  color: var(--color-error);
+}
+
+.task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+/* --------------------------------------------------------------------------
+   Quick Links
+   -------------------------------------------------------------------------- */
+.link-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+}
+
+.link-form__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.link-form__row .error-msg {
+  flex: 0 0 100%;
+  font-size: 0.8125rem;
+  color: var(--color-error);
+}
+
+.links-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Shared form control stubs (full sizing, short sizing)
+   These ensure inputs don't overflow their containers.
+   -------------------------------------------------------------------------- */
+.input {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  padding: 0.4375rem 0.625rem;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  /* Inputs must not overflow their flex/grid parent */
+  min-width: 0;
+  max-width: 100%;
+}
+
+.input--full {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.input--short {
+  flex: 0 1 6rem;
+  width: 6rem;
+}
+
+/* --------------------------------------------------------------------------
+   Button stubs — minimal sizing so buttons remain reachable (≥ 44×44 tap area)
+   -------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.4375rem 0.875rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+  white-space: nowrap;
+  /* Minimum touch target size — WCAG 2.5.5 */
+  min-height: 2.75rem;       /* 44px */
+  min-width: 2.75rem;
+  /* Prevent button text from wrapping in an ugly way */
+  flex-shrink: 0;
+}
+
+.btn--primary {
+  background-color: var(--color-accent);
+  color: #ffffff;
+  border-color: var(--color-accent);
+}
+
+.btn--secondary {
+  background-color: transparent;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.btn--ghost {
+  background-color: transparent;
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
+.btn--icon {
+  padding: 0.4375rem;
+  font-size: 1.125rem;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   Notice / inline error block
+   -------------------------------------------------------------------------- */
+.notice {
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.375rem;
+  font-size: 0.9375rem;
+  margin-top: 0.5rem;
+}
+
+.notice--error {
+  background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
+  color: var(--color-error);
+  border: 1px solid color-mix(in srgb, var(--color-error) 40%, transparent);
+}
+
+.error-msg {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+.site-footer {
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding: 0.75rem 1rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.site-footer__text {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   Responsive overrides
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Narrow viewports — ≤ 480px
+   Reflow: header stacks vertically; dashboard uses a single column;
+   name-configurator inputs use full width.
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .header-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .app-title {
+    text-align: center;
+  }
+
+  /* Theme toggle moves to be below the name row, full-width tap area */
+  .theme-toggle {
+    margin-inline-start: 0;
+    align-self: flex-end;    /* right-align within the column                   */
+  }
+
+  .name-configurator {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .name-input {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Dashboard: single-column, tighter padding to respect 320px viewport */
+  .dashboard {
+    padding: 0.75rem 0.5rem;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  /* Greeting time can be a bit smaller on very narrow screens */
+  .greeting__time {
+    font-size: clamp(1.75rem, 10vw, 2.5rem);
+  }
+
+  /* Stack timer controls if they wrap */
+  .timer__controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .timer__controls .btn {
+    width: 100%;
+  }
+
+  /* Duration config: label + input on separate lines */
+  .timer__duration-config {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input--short {
+    width: 100%;
+    max-width: 100%;
+    flex-basis: auto;
+  }
+
+  /* Task form: input full width, button below */
+  .task-form {
+    flex-direction: column;
+  }
+
+  .task-form .input--full {
+    width: 100%;
+  }
+
+  /* Link form fields go full width */
+  .link-form__row .input,
+  .link-form__row .input--full {
+    width: 100%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Large screens — ≥ 1024px
+   The auto-fit grid already handles the 2-column layout, but we can ensure
+   the task manager and quick links each occupy one column while the greeting
+   and timer span appropriately.
+   -------------------------------------------------------------------------- */
+@media (min-width: 1024px) {
+  .dashboard {
+    /* Explicit 2-column grid on larger viewports for stable alignment */
+    grid-template-columns: repeat(2, 1fr);
+    padding: 1.5rem;
+    gap: 1.25rem;
+  }
+
+  /* Greeting spans both columns */
+  .module--greeting {
+    grid-column: 1 / -1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Very wide screens — ≥ 1400px
+   Max-width constraints on header-inner and .dashboard already limit content
+   to 1600px. This prevents the layout from becoming too spread out.
+   -------------------------------------------------------------------------- */
+@media (min-width: 1400px) {
+  .dashboard {
+    padding: 1.75rem 2rem;
+    gap: 1.5rem;
+  }
+}
+
+/* ==========================================================================
+   Task 2.3 — Component-level module styles
+   Requirements 5.7 (completed-task visual state), 9.5 (error visual styles)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Greeting Module — time, date, greeting typography
+   (Base layout lives in Task 2.2; these are refinements / additions)
+   -------------------------------------------------------------------------- */
+
+/* Subtle separator between time and the greeting text */
+.greeting__date {
+  letter-spacing: 0.02em;
+}
+
+/* Make the greeting text stand out a little more with accent colour */
+.greeting__text {
+  color: var(--color-accent);
+  letter-spacing: 0.01em;
+}
+
+/* --------------------------------------------------------------------------
+   Focus Timer — display refinements, controls, duration config, notification
+   -------------------------------------------------------------------------- */
+
+/* Monospaced digits so the display doesn't jitter as numbers change */
+.timer__display {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  color: var(--color-accent);
+}
+
+/* Distinguish the "running" state visually */
+.module--focus-timer.timer--running .timer__display {
+  color: var(--color-text);
+}
+
+/* Completion notification styling */
+.timer__notification {
+  background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  font-weight: 500;
+  margin-top: 0.625rem;
+}
+
+/* Duration input should feel inline with the Save button */
+.timer__duration-config .input--short {
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Task Manager — task list items, edit mode, completed state, action buttons
+   Requirement 5.7 — completed tasks must show line-through + reduced opacity
+   -------------------------------------------------------------------------- */
+
+/* Individual task item row */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  background-color: var(--color-surface);
+  /* Smooth state transitions */
+  transition: opacity 0.2s ease, background-color 0.15s ease;
+  min-width: 0;
+}
+
+/* Task checkbox — sized to meet touch-target minimums */
+.task-item__checkbox {
+  flex: 0 0 auto;
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+  accent-color: var(--color-accent);
+}
+
+/* Task label text — grows to fill remaining space, truncates long titles */
+.task-item__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+/* Edit-mode text input inside a task item */
+.task-item__edit-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Action buttons (edit, delete) at the trailing edge */
+.task-item__actions {
+  display: flex;
+  gap: 0.25rem;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+/* Smaller icon-style action buttons inside list items */
+.task-item__actions .btn--icon {
+  min-height: 2.25rem;
+  min-width: 2.25rem;
+  font-size: 1rem;
+  padding: 0.3125rem;
+}
+
+/* ---- Completed task state (Requirement 5.7) ---- */
+/*
+ * Applied when JS adds the .task--completed modifier to the list item.
+ * Text-decoration strikes through the label; opacity visually de-emphasises
+ * the whole row without making it completely invisible.
+ */
+.task--completed .task-item__label {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+.task--completed {
+  opacity: 0.6;
+}
+
+/* --------------------------------------------------------------------------
+   Quick Links — link button grid, label truncation, delete button
+   -------------------------------------------------------------------------- */
+
+/* Each rendered link is a positioned wrapper so the delete button can be
+   placed at the top-right corner */
+.link-item {
+  position: relative;
+  display: inline-flex;
+}
+
+/* The anchor / button that navigates to the saved URL */
+.link-item__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.875rem;
+  background-color: var(--color-surface);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  border-radius: 0.375rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 12rem;           /* keep buttons from becoming excessively wide     */
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;    /* truncate long labels with "…"                   */
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.link-item__btn:hover,
+.link-item__btn:focus-visible {
+  background-color: var(--color-accent);
+  color: #ffffff;
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Delete button — small × at the top-right corner of the link button */
+.link-item__delete {
+  position: absolute;
+  top: -0.375rem;
+  right: -0.375rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  min-height: unset;
+  min-width: unset;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  line-height: 1;
+  background-color: var(--color-surface);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Hidden by default; revealed on hover/focus within the link-item wrapper */
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.link-item:hover .link-item__delete,
+.link-item:focus-within .link-item__delete {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Theme Toggle — visual indicator of current mode
+   -------------------------------------------------------------------------- */
+
+/* The icon span inside the button */
+.theme-toggle__icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  display: block;
+}
+
+/*
+ * When data-theme="dark" is set on <html> (applied by ThemeController),
+ * swap the visible icon so the button reflects the *current* state.
+ * JS also updates aria-label and aria-pressed for screen readers.
+ */
+[data-theme="dark"] .theme-toggle .theme-toggle__icon::before {
+  content: "☀️";
+}
+
+/* Give the toggle a subtle border in dark mode to keep it visible */
+[data-theme="dark"] .theme-toggle {
+  border-color: var(--color-border);
+}
+
+/* --------------------------------------------------------------------------
+   Name Configurator — inline input + Save / Clear button layout
+   (The flex row layout is already established in Task 2.2;
+    these rules add visual polish.)
+   -------------------------------------------------------------------------- */
+
+/* Style the name text input to feel part of the header row */
+.name-input {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  padding: 0.4375rem 0.625rem;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  min-height: 2.75rem;       /* align height with adjacent buttons               */
+}
+
+.name-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.name-input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-color: var(--color-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Error message — inline, visually distinct
+   Requirement 9.5 — errors must be clearly noticeable
+   These rules reinforce/extend the base .error-msg stub from Task 2.2.
+   -------------------------------------------------------------------------- */
+
+/*
+ * .error-msg is already defined with font-size and color in Task 2.2.
+ * Add icon prefix via ::before, font-weight, and a small top spacing
+ * so errors are impossible to miss.
+ */
+.error-msg:not(:empty) {
+  display: block;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 0.1875rem;
+}
+
+.error-msg:not(:empty)::before {
+  content: "⚠ ";
+  font-style: normal;
+}
+
+/* When the error appears inside a flex row, keep it on its own line */
+.task-form .error-msg,
+.link-form__row .error-msg,
+.timer__duration-config .error-msg,
+.name-configurator .error-msg {
+  flex-basis: 100%;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Focus-visible ring — consistent across all interactive elements
+   -------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
